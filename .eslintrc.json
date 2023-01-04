@@ -1,0 +1,32 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "eslint:recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:styled-components-a11y/recommended"
+  ],
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "jsx-a11y",
+    "styled-components-a11y",
+    "eslint-plugin-styled-components"
+  ],
+  "rules": {},
+  "settings": {
+    "jsx-a11y": {
+      "components": {
+        "Header": "div",
+        "Image": "img"
+      }
+    }
+  }
+}
