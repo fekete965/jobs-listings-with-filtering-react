@@ -12,8 +12,6 @@ export const Container = styled.div`
 
 export const Image = styled.img`
 	position: absolute;
-	/* max-width: 90px; */
-
 	top: -50px;
 	left: 3px;
 	height: auto;
@@ -24,10 +22,15 @@ export const Top = styled.div`
 	position: relative;
 `;
 export const Bottom = styled.div``;
+
 export const Title = styled.h2`
 	display: ${(props) => (props.inline ? 'inline-block' : 'block')};
 	color: ${(props) => (props.primary ? colors.primary : 'black')};
 	margin: 0.8rem 0;
+	cursor: ${({ primary }) => (primary ? 'default' : 'pointer')};
+	&:hover {
+		color: ${({ primary }) => (!primary ? colors.primary : null)};
+	}
 `;
 
 export const Sticker = styled.div`
@@ -65,9 +68,10 @@ export const Tag = styled.div`
 	cursor: pointer;
 	margin-top: 1rem;
 	display: inline-block;
-	margin-left: 1rem;
+	margin-right: 1rem;
 
-	&:first-of-type {
-		margin-left: 0;
+	&:hover {
+		background: ${() => colors.primary};
+		color: white;
 	}
 `;

@@ -6,4 +6,7 @@ export const SHeader = styled.div`
 	background-color: ${() => colors.primary};
 `;
 
-export const Image = styled.img``;
+export const Image = styled.img`
+	display: block;
+	max-width: 100%;
+`;

@@ -3,32 +3,19 @@ import { GlobalStyle } from './globalStyles';
 import { SMain } from './assets/components/Main/MainStyles';
 import Header from './assets/components/Header/Header';
 import Job from './assets/components/Job/Job';
+import useFetch from './assets/hooks/useFetch';
 
 function App() {
-	const [jobs, setJobs] = useState([]);
-	const URL = `http://localhost:3000/data`;
+	const [jobs, url, setUrl] = useFetch();
 
-	useEffect(() => {
-		fetch(URL)
-			.then((res) => res.json())
-			.then((data) => {
-				const modifiedJobs = data.map((job) => {
-					return {
-						...job,
-						logo: `/src/assets/${job.logo.slice(1)}`
-					};
-				});
-				setJobs(modifiedJobs);
-			})
-			.catch((err) => console.log(err));
-	}, []);
+	// when a tag is clicked, jobs should be filtered to display objects containing the clicked tag's textContent
 
 	return (
 		<div className='App'>
 			<GlobalStyle />
 			<Header />
 			<SMain>
-				{jobs ? jobs.map((job) => <Job key={job.id} {...{ ...job }} />) : console.log(Array.isArray(jobs))}
+				{jobs ? jobs.map((job) => <Job key={job.id} {...job} url={url} setUrl={setUrl} />) : null}
 				<Job />
 			</SMain>
 		</div>
