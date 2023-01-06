@@ -1,17 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import colors from '../../colors';
-import { Container, Top, Image, Title, Sticker, Details, Detail, Hr, Bottom, Tag } from './JobStyles';
+import Filters from '../Filters/Filters';
+import { SFilters } from '../Filters/FiltersStyles';
+import { Container, Top, Image, Title, Sticker, Details, Detail, Hr, Tag } from './JobStyles';
 
-const Job = ({ id, company, logo, new: isNew, featured, position, role, level, postedAt, contract, location, languages, tools, url, setUrl }) => {
-	const updateSearchParams = (e) => {
-		const key = e.target.dataset.prop;
-		const value = e.target.textContent;
-		const newParams = new URLSearchParams({ [key]: value }).toString();
-
-		setUrl(`${url}?${newParams}`);
-	};
-
+const Job = ({ id, company, logo, new: isNew, featured, position, role, level, postedAt, contract, location, languages, tools, url, setUrl, showFilters, setShowFilters, filterObject, setFilter }) => {
 	return (
 		<Container id={id} featured={featured}>
 			<Top>
@@ -27,28 +21,8 @@ const Job = ({ id, company, logo, new: isNew, featured, position, role, level, p
 				</Details>
 			</Top>
 			<Hr />
-			<Bottom>
-				{role && (
-					<Tag onClick={updateSearchParams} data-prop={'role'}>
-						{role}
-					</Tag>
-				)}
-				{level && <Tag data-prop={'level'}>{level}</Tag>}
-				{languages?.length > 0
-					? languages.map((language, i) => (
-							<Tag key={`languages${i}`} data-prop={'languages'}>
-								{language}
-							</Tag>
-					  ))
-					: null}
-				{tools?.length > 0
-					? tools.map((tool, i) => (
-							<Tag key={`tools${i}`} data-prop={'tool'}>
-								{tool}
-							</Tag>
-					  ))
-					: null}
-			</Bottom>
+
+			<Filters showAll role={role} level={level} languages={languages} tools={tools} url={url} setUrl={setUrl} showFilters={showFilters} setShowFilters={setShowFilters} filterObject={filterObject} setFilter={setFilter}></Filters>
 		</Container>
 	);
 };

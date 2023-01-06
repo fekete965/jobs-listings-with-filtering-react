@@ -21,7 +21,7 @@ export const Image = styled.img`
 export const Top = styled.div`
 	position: relative;
 `;
-export const Bottom = styled.div``;
+// export const Bottom = styled.div``;
 
 export const Title = styled.h2`
 	display: ${(props) => (props.inline ? 'inline-block' : 'block')};

@@ -20,12 +20,25 @@
     "styled-components-a11y",
     "eslint-plugin-styled-components"
   ],
-  "rules": {},
+  "rules": {
+    "multiline-ternary": 1,
+    "operator-linebreak": 1
+  },
   "settings": {
     "jsx-a11y": {
       "components": {
-        "Header": "div",
-        "Image": "img"
+        "SHeader": "div",
+        "Image": "img",
+        "SMain": "main",
+        "Container": "div",
+        "Top": "div",
+        // "Bottom": "div",
+        "Title": "h2",
+        "Sticker": "div",
+        "Details": "div",
+        "Detail": "span",
+        "Hr": "hr",
+        "Tag": "div"
       }
     }
   }

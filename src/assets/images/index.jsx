@@ -3,7 +3,7 @@ import bgHeaderDesktop from './bg-header-desktop.svg';
 import bgHeaderMobile from './bg-header-mobile.svg';
 import eyecam from './eyecam-co.svg';
 import faceit from './faceit.svg';
-import removeIcon from './icon-remove.svg';
+import remove from './icon-remove.svg';
 import insure from './insure.svg';
 import loopStudios from './loop-studios.svg';
 import manage from './manage.svg';
@@ -18,7 +18,7 @@ export default {
 	bgHeaderMobile,
 	eyecam,
 	faceit,
-	removeIcon,
+	remove,
 	insure,
 	loopStudios,
 	manage,

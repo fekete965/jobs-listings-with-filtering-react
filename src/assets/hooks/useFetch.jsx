@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-const useFetch = () => {
+const useFetch = (URL) => {
 	const [jobs, setJobs] = useState([]);
-	const [url, setUrl] = useState(`http://localhost:3000/data`);
+	const [url, setUrl] = useState(URL);
 
 	useEffect(() => {
 		fetch(url)
@@ -14,13 +14,12 @@ const useFetch = () => {
 						logo: `/src/assets/${job.logo.slice(1)}`
 					};
 				});
+				// console.log(url);
 				setJobs(modifiedJobs);
 			})
 			.catch((err) => console.log(err));
 	}, [url]);
-
 	return [jobs, url, setUrl];
-	// need a function to change the URL
 
 	/*
   1a)
@@ -28,9 +27,10 @@ const useFetch = () => {
   1b)
   http://localhost:3000/data?level=Midweight
   2)
-  http://localhost:3000/data?q=languages:JavaScript,languages:CSS
-
-  if more, just add to the array
+  http://localhost:3000/data?languages[]=JavaScript
+  !exclusively JavaScript
+  3)
+  http://localhost:3000/data?languages_like=JavaScript
   */
 };
 
