@@ -5,8 +5,15 @@ import { ActiveFilter, ActiveFilters, Clear, CloseCon, Image, SFilters, FiltersC
 
 const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilters, setShowFilters, filterObject, setFilter }) => {
 	const [count, setCount] = useState(0);
+	useEffect(() => {
+		console.log(`Filters: \n${url}`);
 
-	useEffect(() => console.log(url));
+		// console.log(url);
+		// console.log(filterObject?.tools.size > 0);
+		if (filterObject?.tools?.size > 0) {
+			console.log(filterObject.tools);
+		}
+	});
 
 	const updateSearchParams = (e) => {
 		const key = e.target.dataset.prop;
@@ -17,10 +24,7 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 		const isPrimitive = (key) => key === 'role' || key === 'level';
 		const isFirstFilter = (url) => url === 'http://localhost:3000/data';
 
-		const url2 = new URL(url);
-		console.table(url2.search.toString());
-
-		if (url2.search.includes(value)) return;
+		if (new URL(url).search.includes(value)) return;
 		const newPrimitiveParam = new URLSearchParams({ [key]: value }).toString();
 		const newComplexParam = new URLSearchParams({ [`${key}_like`]: value }).toString();
 
