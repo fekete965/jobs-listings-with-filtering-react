@@ -5,32 +5,42 @@ import { ActiveFilter, ActiveFilters, Clear, CloseCon, Image, SFilters, FiltersC
 
 const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilters, setShowFilters, filterObject, setFilter }) => {
 	const [count, setCount] = useState(0);
-	useEffect(() => {
-		console.log(`Filters: \n${url}`);
 
-		// console.log(url);
-		// console.log(filterObject?.tools.size > 0);
-		if (filterObject?.tools?.size > 0) {
-			console.log(filterObject.tools);
-		}
+	useEffect(() => {
+		console.log(url);
 	});
 
 	const updateSearchParams = (e) => {
 		const key = e.target.dataset.prop;
 		const value = e.target.textContent;
-
-		console.log(key, value);
+		const urlCopy = new URL(url);
 
 		const isPrimitive = (key) => key === 'role' || key === 'level';
 		const isFirstFilter = (url) => url === 'http://localhost:3000/data';
+		const isInUrl = (url, keyOrValue) => urlCopy.search.includes(keyOrValue);
 
-		if (new URL(url).search.includes(value)) return;
-		const newPrimitiveParam = new URLSearchParams({ [key]: value }).toString();
-		const newComplexParam = new URLSearchParams({ [`${key}_like`]: value }).toString();
+		const setMultipleQuery = (url, key, value) => {
+			let params = new URLSearchParams(urlCopy.search);
+			const oldValues = params.getAll(key);
+			const newValues = oldValues.concat([value]);
+			params.delete(key);
+			params.append(key, newValues.join(','));
+			urlCopy.search = params;
+			setUrl(urlCopy);
+		};
+
+		if (isPrimitive(key) && isInUrl(url, value)) return;
+
+		const updatedKey = isPrimitive(key) ? key : `${key}_like`;
+		const firstParam = new URLSearchParams({ [updatedKey]: value }).toString();
 
 		let queryString = isFirstFilter(url) ? '?' : '&';
+		const newUrl = url + queryString + firstParam;
 
-		isPrimitive(key) ? setUrl(`${url}${queryString}${newPrimitiveParam}`) : setUrl(`${url}${queryString}${newComplexParam}`);
+		if (isPrimitive(key)) setUrl(newUrl);
+		else {
+			isInUrl(url, updatedKey) ? setMultipleQuery(url, updatedKey, value) : setUrl(newUrl);
+		}
 	};
 
 	const isSet = (object) => typeof object === 'object' && object?.constructor === Set;
@@ -54,7 +64,7 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 		updateSearchParams(e);
 		addFilter(e);
 	};
-	// !
+
 	const removeFilters = (e) => {
 		removeSearchParam(e);
 		removeFilter(e);

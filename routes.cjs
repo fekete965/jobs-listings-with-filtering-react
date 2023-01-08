@@ -5,37 +5,65 @@ module.exports = (req, res, next) => {
 		let jobs = [
 			{
 				id: 1,
-				company: 'Acme Inc',
-				position: 'Software Engineer',
-				tools: ['Vue', 'RoR'],
-				languages: ['JavaScript', 'Ruby']
+				company: 'Photosnap',
+				logo: './images/photosnap.svg',
+				new: true,
+				featured: true,
+				position: 'Senior Frontend Developer',
+				role: 'Frontend',
+				level: 'Senior',
+				postedAt: '1d ago',
+				contract: 'Full Time',
+				location: 'USA Only',
+				languages: ['HTML', 'CSS', 'JavaScript'],
+				tools: []
 			},
 			{
 				id: 2,
-				company: 'Acme Inc',
-				position: 'Data Scientist',
-				tools: ['Django', 'Sass'],
-				languages: ['Python', 'R']
+				company: 'Manage',
+				logo: './images/manage.svg',
+				new: true,
+				featured: true,
+				position: 'Fullstack Developer',
+				role: 'Fullstack',
+				level: 'Midweight',
+				postedAt: '1d ago',
+				contract: 'Part Time',
+				location: 'Remote',
+				languages: ['Python'],
+				tools: ['React']
 			},
 			{
 				id: 3,
-				company: 'Big Corp',
-				position: 'Software Engineer',
-				languages: ['HTML', 'JavaScript'],
-				tools: ['Sass']
+				company: 'Account',
+				logo: './images/account.svg',
+				new: true,
+				featured: false,
+				position: 'Junior Frontend Developer',
+				role: 'Frontend',
+				level: 'Junior',
+				postedAt: '2d ago',
+				contract: 'Part Time',
+				location: 'USA Only',
+				languages: ['JavaScript'],
+				tools: ['React', 'Sass']
 			}
 		];
 
 		// Filter jobs by tools if the `tools` query param is present
 		if (req.query.tools) {
-			const tools = req.query.tools.split(','); // Split the value of the `tools` query param into an array
-			jobs = jobs.filter((job) => job.tools.some((tool) => tools.includes(tool))); // Keep only jobs that have at least one tool in the `tools` array
+			let tools = req.query.tools;
+			if (typeof tools === 'string') tools = [tools];
 		}
+		jobs = jobs.filter((job) => job.tools.some((tool) => tools.includes(tool)));
 
 		// Filter jobs by languages if the `languages` query param is present
 		if (req.query.languages) {
-			const languages = req.query.languages.split(','); // Split the value of the `languages` query param into an array
-			jobs = jobs.filter((job) => job.languages.some((language) => languages.includes(language))); // Keep only jobs that have at least one language in the `languages` array
+			let languages = req.query.languages;
+			if (typeof languages === 'string') {
+				languages = [languages];
+			}
+			jobs = jobs.filter((job) => languages.some((language) => job.languages.includes(language)));
 		}
 
 		res.json(jobs);

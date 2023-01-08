@@ -15,7 +15,7 @@ function App() {
 		languages: new Set(),
 		tools: new Set()
 	});
-	console.log(`App: \n${url}`);
+	// console.log(`App: \n${url}`);
 
 	return (
 		<div className='App'>
