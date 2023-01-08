@@ -8,6 +8,7 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 
 	useEffect(() => {
 		console.log(url);
+		// console.log(filterObject);
 	});
 
 	const updateSearchParams = (e) => {
@@ -19,28 +20,14 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 		const isFirstFilter = (url) => url === 'http://localhost:3000/data';
 		const isInUrl = (url, keyOrValue) => urlCopy.search.includes(keyOrValue);
 
-		const setMultipleQuery = (url, key, value) => {
-			let params = new URLSearchParams(urlCopy.search);
-			const oldValues = params.getAll(key);
-			const newValues = oldValues.concat([value]);
-			params.delete(key);
-			params.append(key, newValues.join(','));
-			urlCopy.search = params;
-			setUrl(urlCopy);
-		};
-
 		if (isPrimitive(key) && isInUrl(url, value)) return;
 
-		const updatedKey = isPrimitive(key) ? key : `${key}_like`;
-		const firstParam = new URLSearchParams({ [updatedKey]: value }).toString();
+		const updatedKey = isPrimitive(key) ? key : `${key}_like[]`;
+		const newParam = new URLSearchParams({ [updatedKey]: value }).toString();
+		const queryString = isFirstFilter(url) ? '?' : '&';
+		const newUrl = url + queryString + newParam;
 
-		let queryString = isFirstFilter(url) ? '?' : '&';
-		const newUrl = url + queryString + firstParam;
-
-		if (isPrimitive(key)) setUrl(newUrl);
-		else {
-			isInUrl(url, updatedKey) ? setMultipleQuery(url, updatedKey, value) : setUrl(newUrl);
-		}
+		setUrl(newUrl);
 	};
 
 	const isSet = (object) => typeof object === 'object' && object?.constructor === Set;
@@ -72,28 +59,42 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 	};
 
 	const removeSearchParam = (e) => {
-		const currentUrl = new URL(url);
-		const searchParams = new URLSearchParams(currentUrl.search);
-		searchParams.delete(e.currentTarget.dataset.prop);
+		const urlCopy = new URL(url);
+		const searchParams = new URLSearchParams(urlCopy.search);
+		const key = e.currentTarget.dataset.prop + '_like';
+		const value = e.target.textContent;
 
-		currentUrl.search = searchParams.toString();
-		setUrl(currentUrl.toString());
+		// console.log(urlCopy);
+		// console.log(searchParams.getAll(key));
+
+		searchParams.getAll(key).forEach((oldValue) => {
+			if (oldValue === value) searchParams.delete(key);
+		});
+
+		if (searchParams.entries().length === 0) setUrl(urlCopy.href);
+		// searchParams.delete(key);
+		urlCopy.search = searchParams;
+		console.log(urlCopy.search);
+		setUrl(urlCopy.toString());
 	};
 
 	const removeFilter = (e) => {
-		const filterObjCopy = filterObject;
-		for (const key in filterObjCopy) {
-			if (filterObjCopy[key] === e.target.textContent) delete filterObjCopy[key];
-		}
-		setFilter(filterObjCopy);
+		const FOCopy = filterObject;
+		const paramKey = e.currentTarget.dataset.prop;
+		const paramValue = e.target.textContent;
 
+		Object.entries(FOCopy).flatMap(([key, value]) => {
+			value instanceof Set && value.has(paramValue) ? value.delete(paramValue) : (FOCopy[key] = '');
+		});
+
+		setFilter(FOCopy);
 		setCount((prevCount) => prevCount - 1);
 	};
 
 	const renderActiveFilter = (val, i, key, isArray) => {
 		if (!val) return null;
 		return (
-			<ActiveFilter onClick={removeFilters} data-prop={`${key}${i}`} key={`activeFilter${key}${i}`}>
+			<ActiveFilter onClick={removeFilters} data-prop={`${key}`} key={`activeFilter${key}${i}`}>
 				<Tag isActive>{val}</Tag>
 				<CloseCon>
 					<Image src={images.remove} alt='Delete filterObject' />

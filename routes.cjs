@@ -50,20 +50,24 @@ module.exports = (req, res, next) => {
 			}
 		];
 
-		// Filter jobs by tools if the `tools` query param is present
 		if (req.query.tools) {
 			let tools = req.query.tools;
 			if (typeof tools === 'string') tools = [tools];
 		}
-		jobs = jobs.filter((job) => job.tools.some((tool) => tools.includes(tool)));
+		jobs = jobs.filter((job) => job.tools.every((tool) => tools.includes(tool)));
 
-		// Filter jobs by languages if the `languages` query param is present
 		if (req.query.languages) {
 			let languages = req.query.languages;
-			if (typeof languages === 'string') {
+			if (Array.isArray(languages)) {
+				if (languages.length > 1) {
+					jobs = jobs.filter((job) => languages.every((language) => job.languages.includes(language)));
+				} else {
+					jobs = jobs.filter((job) => job.languages.includes(languages[0]));
+				}
+			} else if (typeof languages === 'string') {
 				languages = [languages];
+				jobs = jobs.filter((job) => languages.some((language) => job.languages.includes(language)));
 			}
-			jobs = jobs.filter((job) => languages.some((language) => job.languages.includes(language)));
 		}
 
 		res.json(jobs);
