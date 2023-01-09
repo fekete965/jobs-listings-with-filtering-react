@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import useFetch from '../../hooks/useFetch';
 import images from '../../images';
 import { Tag } from '../Job/JobStyles';
 import { ActiveFilter, ActiveFilters, Clear, CloseCon, Image, SFilters, FiltersCon } from './FiltersStyles';
 
-const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilters, setShowFilters, filterObject, setFilter }) => {
+const Filters = ({ params, setParams, url, setUrl, showAll, role, level, languages, tools, showFilters, setShowFilters }) => {
 	const [count, setCount] = useState(0);
 
-	useEffect(() => {
-		console.log(url);
-		// console.log(filterObject);
-	});
+	const hasParam = (params) => {
+		if (params) {
+			return Object.keys(params).some((prop) => {
+				if (isSet(params[prop])) {
+					return true;
+				} else if (typeof params[prop] === 'string') {
+					return Boolean(params[prop]);
+				}
+				return false;
+			});
+		}
+		return false;
+	};
 
 	const updateSearchParams = (e) => {
 		const key = e.target.dataset.prop;
@@ -17,30 +27,52 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 		const urlCopy = new URL(url);
 
 		const isPrimitive = (key) => key === 'role' || key === 'level';
-		const isFirstFilter = (url) => url === 'http://localhost:3000/data';
-		const isInUrl = (url, keyOrValue) => urlCopy.search.includes(keyOrValue);
+		const isFirstFilter = (url) => url === 'http://localhost:3000/jobs';
+		const isInUrl = (url, keyOrValue) => url.includes(keyOrValue);
+		const getRegexQuery = (value) => `(?=.*${value})`;
 
-		if (isPrimitive(key) && isInUrl(url, value)) return;
-
-		const updatedKey = isPrimitive(key) ? key : `${key}_like[]`;
-		const newParam = new URLSearchParams({ [updatedKey]: value }).toString();
 		const queryString = isFirstFilter(url) ? '?' : '&';
+		const updatedKey = isPrimitive(key) && !isInUrl(url, key) ? key : `${key}_like`;
+		const newParam = new URLSearchParams({ [updatedKey]: isPrimitive(key) ? value : getRegexQuery(value) }).toString();
+
 		const newUrl = url + queryString + newParam;
 
-		setUrl(newUrl);
+		// early return for existing primitive value
+		if (isPrimitive(key) && isInUrl(url, value)) return;
+
+		// add new primitive param
+		if (isPrimitive(key) && !isInUrl(url, value)) setUrl(newUrl);
+
+		// complex: get old param, add new param, modify link
+		if (isInUrl(url, key)) {
+			const searchParams = new URLSearchParams(new URL(url).search);
+			const oldValue = searchParams.get(updatedKey);
+			const oldValueAll = searchParams.getAll(updatedKey);
+			let allValues = '';
+			oldValueAll.forEach((value) => (allValues += value));
+			const newValues = allValues + getRegexQuery(value);
+			searchParams.set(updatedKey, newValues);
+			urlCopy.search = searchParams;
+			setUrl(urlCopy.toString());
+		}
+
+		// handle new complex param
+		if (!isInUrl(url, key)) {
+			setUrl(newUrl);
+		}
 	};
 
-	const isSet = (object) => typeof object === 'object' && object?.constructor === Set;
+	const isSet = (object) => object instanceof Set;
 
-	const addFilter = (e) => {
+	const addParams = (e) => {
 		const prop = e.target.dataset.prop;
 		const value = e.target.textContent;
 
-		if (isSet(filterObject[prop])) {
-			setFilter({ ...filterObject, [prop]: new Set([...filterObject[prop], value]) });
+		if (params && isSet(params[prop])) {
+			setParams({ ...params, [prop]: new Set([...params[prop], value]) });
 		} else {
-			setFilter({
-				...filterObject,
+			setParams({
+				...params,
 				[prop]: value
 			});
 		}
@@ -49,13 +81,14 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 	const updateFilters = (e) => {
 		setShowFilters(true);
 		updateSearchParams(e);
-		addFilter(e);
+		addParams(e);
 	};
 
 	const removeFilters = (e) => {
 		removeSearchParam(e);
 		removeFilter(e);
-		Object.values(filterObject).length === 0 ? setShowFilters(false) : null;
+		console.warn(hasParam(params));
+		!hasParam(params) ? setShowFilters(false) : null;
 	};
 
 	const removeSearchParam = (e) => {
@@ -64,37 +97,45 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 		const key = e.currentTarget.dataset.prop + '_like';
 		const value = e.target.textContent;
 
-		// console.log(urlCopy);
-		// console.log(searchParams.getAll(key));
-
 		searchParams.getAll(key).forEach((oldValue) => {
 			if (oldValue === value) searchParams.delete(key);
 		});
 
 		if (searchParams.entries().length === 0) setUrl(urlCopy.href);
-		// searchParams.delete(key);
 		urlCopy.search = searchParams;
-		console.log(urlCopy.search);
 		setUrl(urlCopy.toString());
 	};
 
 	const removeFilter = (e) => {
-		const FOCopy = filterObject;
-		const paramKey = e.currentTarget.dataset.prop;
+		const paramsCopy = params;
+		const paramKey = e.currentTarget.dataset.prop.slice(0, -1);
 		const paramValue = e.target.textContent;
 
-		Object.entries(FOCopy).flatMap(([key, value]) => {
-			value instanceof Set && value.has(paramValue) ? value.delete(paramValue) : (FOCopy[key] = '');
+		Object.entries(paramsCopy).forEach(([key, value]) => {
+			if (isSet(paramsCopy[paramKey]) && paramsCopy[paramKey].has(paramValue)) {
+				paramsCopy[paramKey].delete(paramValue);
+			} else if (typeof paramsCopy[paramKey] === 'string') {
+				paramsCopy[paramKey] = '';
+			}
 		});
-
-		setFilter(FOCopy);
+		setParams(paramsCopy);
 		setCount((prevCount) => prevCount - 1);
+	};
+
+	const handleClearFilters = () => {
+		setShowFilters(false);
+		const paramsCopy = Object.assign(params);
+		for (const prop in paramsCopy) {
+			if (isSet(prop)) prop.forEach((el) => prop.delete(el));
+			else paramsCopy[prop] = null;
+		}
+		setParams(paramsCopy);
 	};
 
 	const renderActiveFilter = (val, i, key, isArray) => {
 		if (!val) return null;
 		return (
-			<ActiveFilter onClick={removeFilters} data-prop={`${key}`} key={`activeFilter${key}${i}`}>
+			<ActiveFilter onClick={removeFilters} data-prop={`${key}${i}`} key={`activeFilter${key}${i}`}>
 				<Tag isActive>{val}</Tag>
 				<CloseCon>
 					<Image src={images.remove} alt='Delete filterObject' />
@@ -135,13 +176,13 @@ const Filters = ({ showAll, role, level, languages, tools, url, setUrl, showFilt
 			) : (
 				<ActiveFilters>
 					<FiltersCon>
-						{Object.keys(filterObject).length > 0
-							? Object.entries(filterObject).flatMap(([key, value], i) => {
+						{hasParam(params)
+							? Object.entries(params).flatMap(([key, value], i) => {
 									return isSet(value) ? [...value].map((arrEl, j) => renderActiveFilter(arrEl, j, key, true)) : renderActiveFilter(value, i, key);
 							  })
 							: null}
 					</FiltersCon>
-					<Clear>Clear</Clear>
+					<Clear onClick={handleClearFilters}>Clear</Clear>
 				</ActiveFilters>
 			)}
 		</>

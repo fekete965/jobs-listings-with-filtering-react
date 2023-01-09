@@ -7,23 +7,22 @@ import useFetch from './assets/hooks/useFetch';
 import Filters from './assets/components/Filters/Filters';
 
 function App() {
-	const [jobs, url, setUrl] = useFetch('http://localhost:3000/data');
+	const [jobs, setJobs, url, setUrl] = useFetch('http://localhost:3000/jobs');
 	const [showFilters, setShowFilters] = useState(false);
-	const [filterObject, setFilter] = useState({
+	const [params, setParams] = useState({
 		role: null,
 		level: null,
 		languages: new Set(),
 		tools: new Set()
 	});
-	// console.log(`App: \n${url}`);
 
 	return (
 		<div className='App'>
 			<GlobalStyle />
 			<Header />
 			<SMain>
-				{showFilters ? <Filters url={url} setUrl={setUrl} filterObject={filterObject} setFilter={setFilter} setShowFilters={setShowFilters} /> : null}
-				{jobs ? jobs.map((job) => <Job key={job.id} {...job} url={url} setUrl={setUrl} showFilters={showFilters} setShowFilters={setShowFilters} filterObject={filterObject} setFilter={setFilter} />) : null}
+				{showFilters ? <Filters url={url} setUrl={setUrl} params={params} setParams={setParams} setShowFilters={setShowFilters} /> : null}
+				{jobs ? jobs.map((job) => <Job key={job.id} {...job} url={url} setUrl={setUrl} showFilters={showFilters} setShowFilters={setShowFilters} params={params} setParams={setParams} />) : null}
 				<Job />
 			</SMain>
 		</div>

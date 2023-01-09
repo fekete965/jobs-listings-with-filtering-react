@@ -5,7 +5,7 @@ const useFetch = (URL) => {
 	const [url, setUrl] = useState(URL);
 
 	useEffect(() => {
-		fetch(url, { headers: { 'Content-Type': 'application/json' } })
+		fetch(url)
 			.then((res) => res.json())
 			.then((data) => {
 				const modifiedJobs = data.map((job) => {
@@ -18,7 +18,7 @@ const useFetch = (URL) => {
 			})
 			.catch((err) => console.log(err));
 	}, [url]);
-	return [jobs, url, setUrl];
+	return [jobs, setJobs, url, setUrl];
 };
 
 export default useFetch;

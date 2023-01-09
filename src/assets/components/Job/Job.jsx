@@ -5,7 +5,7 @@ import Filters from '../Filters/Filters';
 import { SFilters } from '../Filters/FiltersStyles';
 import { Container, Top, Image, Title, Sticker, Details, Detail, Hr, Tag } from './JobStyles';
 
-const Job = ({ id, company, logo, new: isNew, featured, position, role, level, postedAt, contract, location, languages, tools, url, setUrl, showFilters, setShowFilters, filterObject, setFilter }) => {
+const Job = ({ id, company, logo, new: isNew, featured, position, role, level, postedAt, contract, location, languages, tools, url, setUrl, showFilters, setShowFilters, params, setParams }) => {
 	return (
 		<Container id={id} featured={featured}>
 			<Top>
@@ -22,7 +22,7 @@ const Job = ({ id, company, logo, new: isNew, featured, position, role, level, p
 			</Top>
 			<Hr />
 
-			<Filters showAll role={role} level={level} languages={languages} tools={tools} url={url} setUrl={setUrl} showFilters={showFilters} setShowFilters={setShowFilters} filterObject={filterObject} setFilter={setFilter}></Filters>
+			<Filters showAll role={role} level={level} languages={languages} tools={tools} url={url} setUrl={setUrl} showFilters={showFilters} setShowFilters={setShowFilters} params={params} setParams={setParams}></Filters>
 		</Container>
 	);
 };
